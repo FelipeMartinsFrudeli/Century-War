@@ -1,0 +1,28 @@
+#lobby {
+    display: none;
+    z-index: 0;
+    position: absolute;
+    flex-direction: column;
+    background-color: cadetblue;
+    padding: 12px;
+
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#rooms-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+#rooms-container button {
+    margin-top: .5em;
+    padding: 6px 0;
+}
+
+#create-room {
+    margin-top: 1em;
+    padding: 6px 0;
+}

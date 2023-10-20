@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <title>Document</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/rotate_screen.css">
+    <link rel="stylesheet" href="css/lobby.css">
+    <link rel="stylesheet" href="css/sign_up.css">
+    <link rel="stylesheet" href="css/game_ui.css">
+    <script src='bundle_client.js' defer></script>
+</head>
+<body scroll="no">
+    <div id="root-window">
+        <!-- canvas -->
+        <div id="render-target">
+
+            <div id="ui-initial">
+                <div id="rotate-screen">
+                  <div id="rotate-screen-ui">
+                      <div>Por favor, rotacione a tela!</div>
+                  </div>
+                </div>
+                
+                <div id="fullscreen-ui">
+                  <div>
+                      Tenha uma experiencia melhor jogando em tela cheia
+                  </div>
+                  
+                  <button id="toggle">Jogar em tela cheia!</button>
+                  <button id="toggle-off">Não obrigado, (alguns bugs podem ocorrer)</button>
+                </div>
+            </div>
+
+            <div id="lobby">
+                <h1>Entre em uma sala:</h1>
+                <div id="rooms-container"></div>
+                <button id="create-room">Criar nova sala +</button>
+            </div>
+
+            <div id="sign-up">
+                <h3>Escolha seu nome:</h3>
+                <input id="username" type="text" name="input" value="" />
+                <button id="sign-up-button">Entrar no jogo</button>
+            </div>
+
+            <div id="game-ui">
+
+                <div id="troop-tools">
+                    <div id="troop-add-container">
+                        <div class="card-troop"></div>
+                        <div class="card-troop"></div>
+                        <div class="card-troop"></div>
+                        <div class="card-troop"></div>
+                    </div>
+    
+                    <div id="troop-remove-container">
+                        <button id="troop-remove-button">Excluir</button>
+                    </div>
+                </div>
+
+            </div>
+        
+        </div>
+    </div>
+
+    <div id="root"></div>
+</body>
+</html>

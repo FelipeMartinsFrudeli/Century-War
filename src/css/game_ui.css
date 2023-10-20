@@ -1,0 +1,28 @@
+#game-ui {
+    display: none;
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+}
+
+#troop-tools {}
+
+#troop-add-container {
+    height: 200px;
+}
+
+#card-troop {
+    height: 100%;
+    width: 2em;
+}
+
+#troop-remove-container {
+    display: flex;
+    gap: 1em;
+}
+
+#troop-remove-button {
+    height: 100px;
+    width: 2em;
+    margin: 1em;
+}

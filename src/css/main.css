@@ -1,0 +1,53 @@
+html, body, #root-window, #render-target { 
+    height: 100vh;
+    width: 100vw;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+html, body {
+    margin: 0;
+    overscroll-behavior: contain;
+    overflow: hidden;
+}
+
+#root-window {
+    height: 100%;
+}
+
+#render-target {
+    position: relative;
+    height: 100%;
+}
+
+#ui-toolbar {
+    position: absolute;
+    width: 150px;
+    height: 100vh;
+    padding: 16px;
+    background-color: #0003;
+    z-index: 2;
+}
+
+.ui-button {
+    background-color: #0005;
+    border: 1px solid black;
+    color: lightgray;
+    height: 40px;
+    width: 100%;
+    font-size: 16px;
+    margin: 4px 0;
+}
+
+.ui-button.selected {
+    background-color: #5585;
+}
+
+.ui-button:not(.selected):hover {
+    background-color: #55558855;
+    
+}
