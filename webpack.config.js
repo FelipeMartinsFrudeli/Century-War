@@ -1,11 +1,9 @@
-const fs = require('fs');
 var path = require('path');
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 module.exports = {
-    entry: './src/index.ts',
-    mode: 'development',
-    devtool: 'inline-source-map',
+    entry: './src/index.js',
+    mode: 'development', // development  production
 
     output: {
         path: path.resolve(__dirname, 'dist/public'),
@@ -14,10 +12,9 @@ module.exports = {
 
     module: {
         rules: [{
-                test: /\.ts?$/,
-                use: 'ts-loader',
-                exclude: /node_modules/,
-            }]
+            test: /.js/,
+            use: ['babel-loader']
+        }]
     },
 
     plugins: [

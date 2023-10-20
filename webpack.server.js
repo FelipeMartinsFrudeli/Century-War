@@ -2,34 +2,18 @@ var path = require('path');
 var nodeExternals = require('webpack-node-externals');
 
 module.exports = {
-    entry: './server.ts',
-    mode: 'development',
-    target: 'node',
-    // devtool: 'inline-source-map',
-    // devtool: 'source-map',
-
-    resolve: {
-        extensions: ['.tsx', '.ts', '.js'],
-    },
-
+    entry: './server.js',
+    mode: 'development', // development  production
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: 'bundle_server.js'
     },
-
+    target: 'node',
     module: {
-        rules: [
-            // {
-            //     test: /.js/,
-            //     use: 'babel-loader'
-            // },
-            {
-                test: /\.ts?$/,
-                use: 'ts-loader',
-                exclude: /node_modules/,
-            },
-        ]
+        rules: [{
+            test: /.js/,
+            use: 'babel-loader'
+        }]
     },
-
     externals: [nodeExternals()]
 }

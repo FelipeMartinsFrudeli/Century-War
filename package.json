@@ -7,10 +7,11 @@
     "build": "webpack --config webpack.server.js && webpack --config webpack.config.js",
     "webpack:server": "webpack --config webpack.server.js --watch",
     "webpack:client": "webpack --config webpack.config.js --watch",
-    "server": "nodemon ./dist/server/bundle_server.js",
-    "start": "npm run build && npm-run-all --parallel webpack:* server"
+    "server": "nodemon ./dist/bundle_server.js",
+    "start": "npm-run-all --parallel webpack:* server"
   },
   "dependencies": {
+    "@tweenjs/tween.js": "^21.0.0",
     "@types/express": "^4.17.20",
     "express": "^4.18.2",
     "path": "^0.12.7",
