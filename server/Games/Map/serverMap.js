@@ -1,20 +1,24 @@
 import Tiles from "./tiles.js";
 
-export default class Map {
-
-    mapInstance = {
-        teams: []
-    };
-
-    tiles = [];   // tiles.data = []
+export default class ServerMap {
 
     constructor(mapSize) {
-        this.tiles = new Tiles(mapSize);
+        this.mapInstance = {};
+        this.mapInstance.tiles = new Tiles(mapSize); // tiles.data = []
+    }
+
+    getTilesData() {
+        if (!this.mapInstance.tiles?.data) {
+            console.error(`tiles data not exists`);
+            return;
+        }
+
+        return this.mapInstance.tiles.data;
     }
 
     createMap(teamPlayers) {
 
-        const tiles = this.tiles;
+        const tiles = this.mapInstance.tiles;
         const size = tiles.size;
         let teams = [];
 
@@ -44,7 +48,7 @@ export default class Map {
     }
 
     remove() {
-        this.tiles.remove();
+        this.mapInstance.tiles.remove();
         this.mapInstance = undefined;
     }
 }

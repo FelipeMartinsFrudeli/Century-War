@@ -1,17 +1,15 @@
-import Map from "../Map/map.js";
-import Game from "./gameInstance.js"
 
 export default class Games {
 
-    MAP_SIZE = 24;
     gameInstances = {}
 
-    constructor() {}
+    constructor() {
+    }
 
-    createGame(hostId, playersInGame) {
+    createGame(hostId, gameInstace) {
 
-        const game = new Game(hostId, playersInGame, new Map(this.MAP_SIZE));
-        this.gameInstances[hostId] = game;
+        this.gameInstances[hostId] = gameInstace;
+        this.gameInstances[hostId].setup();
 
         console.log(`\n game instance create: ${hostId}`);
     }
@@ -23,10 +21,13 @@ export default class Games {
             return;
         }
 
-        this.gameInstances[hostId].delete();
-        
+        this.gameInstances[hostId].deleteMap();
         delete this.gameInstances[hostId];
         
         console.log(`\n game instance deleted: ${hostId}`);
+    }
+
+    getGameFromId(hostId) {
+        return this.gameInstances[hostId]
     }
 }

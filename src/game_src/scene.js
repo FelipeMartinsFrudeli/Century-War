@@ -50,13 +50,14 @@ export default class Scene {
     }
 
     mixers = []
+    tweens = []
 
     updateMixers(newMixers) {
         this.mixers = newMixers;
     }
 
-    updateTween(tween) {
-        this.tween = tween
+    updateTween(tweens) {
+        this.tweens = tweens
     }
 
     render() {
@@ -65,16 +66,15 @@ export default class Scene {
             const delta = this.clock.getDelta()
 
             for (const mixer of this.mixers) {
-                //sbcode.net/threejs/tween-animation-mixer/
                 if (!mixer?.update) {
-                    // console.log(mixer, mixer.update);
                     continue
                 };
-
                 mixer.update(delta);
             }
 
-            if (this.tween) this.tween.update();
+            for (const tween of this.tweens) {
+                if (tween.update) tween.update();
+            }
 
             this.stats.update();
             this.renderer.render(this.scene, window.cameraClass.camera);

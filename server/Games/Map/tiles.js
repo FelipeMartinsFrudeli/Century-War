@@ -1,8 +1,5 @@
 
 export default class Tiles {
-    
-    data = [];
-    size = 0;
 
     constructor(size) {
 

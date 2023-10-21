@@ -99,7 +99,7 @@ const assets = {
             }
 
             troop.playRunAnimation = () => {
-                action.play();
+                action.play(); 
             }
 
             if (typeof callback == 'function') callback(troop, mixer)

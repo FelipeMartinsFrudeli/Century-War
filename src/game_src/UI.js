@@ -38,7 +38,7 @@ export default class UI {
             const room = rooms[roomId];
             
             let roomButton = this.setRoomBtn(room);
-            roomButton.addEventListener('click', () => callback(room.id));
+            roomButton.addEventListener('click', () => callback(room.hostId));
         }
     }
 
@@ -68,11 +68,10 @@ export default class UI {
         const usernameInput = document.getElementById('username');
 
         signUpButton.addEventListener('click', () => {
-
             
             const username = usernameInput.value
-            // console.log(username, "username");
             if (username.length === 0) return;
+            console.log(username, "username");
             
             onClick({ username: username })
 

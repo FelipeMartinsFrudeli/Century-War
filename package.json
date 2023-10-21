@@ -5,10 +5,11 @@
   "license": "MIT",
   "scripts": {
     "build": "webpack --config webpack.server.js && webpack --config webpack.config.js",
+    "build:production": "webpack --config webpack.server.js --mode production && webpack --config webpack.config.js --mode production",
     "webpack:server": "webpack --config webpack.server.js --watch",
     "webpack:client": "webpack --config webpack.config.js --watch",
     "server": "nodemon ./dist/bundle_server.js",
-    "start": "npm-run-all --parallel webpack:* server"
+    "start": "npm run build && npm-run-all --parallel webpack:* server"
   },
   "dependencies": {
     "@tweenjs/tween.js": "^21.0.0",

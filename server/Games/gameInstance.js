@@ -1,5 +1,5 @@
 
-export default class Game {
+export default class GameInstance {
 
     constructor(hostId, players, map) {
         this.hostId = hostId;
@@ -7,7 +7,13 @@ export default class Game {
         this.map = map;
     }
 
-    delete() {
+    setup() {
+        if (!this.map) return console.error(`map not exists`);
+        this.map.createMap(this.players);
+    }
+
+    deleteMap() {
+        if (!this.map) return console.error(`map not exists`);
         this.map.remove();
     }
 }

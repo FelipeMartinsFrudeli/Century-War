@@ -1,12 +1,20 @@
 localStorage.debug = '*';
 
-
 import { io } from "socket.io-client";
 import Game from './game_src/game';
 import UI from "./game_src/UI";
 
+const uid = function(){
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+}
+
+const socket = io({
+    auth: {
+      id: `user-${uid()}`
+    }
+});
+
 const game = new Game();
-const socket = io();
 const playerInterface = new UI(socket);
 
 playerInterface.createRoomButton(() => socket.emit('create-room'))
@@ -33,7 +41,6 @@ game.onPlaceObjects((data) => {
 
 socket.on('connect', () => {
     playerInterface.Login((data) => {
-        console.log(`aa`);
         socket.emit('player-login', data)
     });
 });
@@ -53,7 +60,7 @@ socket.on('update-rooms', (data) => {
 
         const room = data.rooms[roomId];
         
-        if (!room?.name || !room?.id) {
+        if (!room?.name || !room?.hostId) {
             console.error(`room invalid room: ${room}`);
             console.dir(data);
             return;

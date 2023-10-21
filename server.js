@@ -1,14 +1,18 @@
-process.env.DEBUG="*";
 
-import { Server } from 'socket.io';
+import fs from 'fs';
 import http from 'http';
 import express from 'express';
 import path from 'path';
-import fs from 'fs';
+import { Server } from 'socket.io';
+import { EventEmitter } from 'stream';
 
-import Observer from './server/utils/observers.js';
+import ClientsConnection from './server/clientConnection.js';
+import Rooms from './server/Rooms/rooms.js';
 import Games from './server/Games/games.js';
-import Players from './server/Players/players.js';
+
+import ServerMap from './server/Games/Map/serverMap.js';
+import RoomInstance from './server/Rooms/roomInstance.js';
+import GameInstance from './server/Games/gameInstance.js';
 
 
 const app = express();
@@ -32,78 +36,111 @@ app.get('/', (req, res) => {
 })
 
 
-/*
-*   PlayerInstance: {
-*       id: socket.id,
-*       username: username or id,
-*       points: 0
-*   }
-*
-*   GameInstance: {
-*       [hostId]: {
-*           hostId,
-*           players: { [playerId]: PlayerInstance, ... },
-*           serverMap: new ServerMap(size, players) { return dataMap }
-*       },
-*       ...
-*   }
-*
-*   io.of(hostId).emit('update-map', newTroop: TroopInstance, reloadAllInstances: boolean);
-*/
+const MAP_SIZE = 24
+const MIN_PLAYERS_START = 2
 
-const rooms = {}
+const emitter = new EventEmitter();
 
-const observer = new Observer();
+const clients = new ClientsConnection();
+const rooms = new Rooms();
 const games = new Games();
-const players = new Players();
 
-io.on('connection', (socket) => {
-    
-    const playerId = socket.id;
-    const alertNotLogged = () => console.log(`\n Player ${playerId} is not logged`);
+emitter.on('update-rooms', () => {
+    io.sockets.emit('update-rooms', { type: 'update-rooms', rooms: rooms.getRooms() })
+})
 
+io.sockets.on('connection', (socket) => {
     
+    const handshake = socket.handshake
+    const playerId = handshake.auth.id;
+
     socket.on('player-login', (data) => {
 
-        console.log(data);
-
-        if (players.isLogged(playerId)) {
-            console.log(`\n Player ${playerId} was already logged`);
-            return;
-        };
-
-        const username = data.username ? data.username : '';
-        players.signUpPlayer(playerId, username);
+        clients.clientLogin(playerId, data);
+        emitter.emit('update-rooms');
     })
-
 
     socket.on('disconnect', () => {
 
-        if (!players.isLogged(playerId)) return alertNotLogged();
+        const gameId = clients.players.getCurrentGameFromId(playerId);
+        if (gameId) {
+            if (rooms.getRoomFromId(gameId)) rooms.removeRoom(gameId);
+            if (games.getGameFromId(gameId)) games.deleteGame(gameId);
+            emitter.emit(`delete-${gameId}`)
+        }
 
-        const currentGameId = players.getCurrentGameId(playerId);
-        if (currentGameId !== '') games.deleteGame(currentGameId);
-        
-        players.disconnectPlayer(playerId);
-        // room
+        // console.log(`\n`);
+        // console.dir(games)
+        // console.log(`\n`);
+        // console.dir(rooms)
+
+        clients.clientDisconnect(playerId);
     })
+    
+    function joinGame(hostId) {
+        const player = clients.players.getPlayerFromId(playerId);
+
+        if (player.gameId != '') games.deleteGame(hostId);
+        clients.players.setGameFromId(playerId, hostId);
+
+        socket.join(hostId);
+        return player
+    }
+
+    function leaveOnDelete(hostId, playerId) {
+        emitter.once(`delete-${hostId}`, () => {
+            socket.emit('remove-map')
+            socket.leave(playerId);
+            emitter.emit('update-rooms');
+        })
+    }
 
     socket.on('create-room', () => {
+
+        if (!clients.players.isLogged(playerId)) return clients.alertNotLogged(playerId);
         
-        if (!players.isLogged(playerId)) return alertNotLogged();
-
-        const currentGameId = players.getCurrentGameId(playerId);
-        if (currentGameId !== '') games.deleteGame(currentGameId);
-
         const hostId = `game-${playerId}`;
-        socket.join(hostId);
+        if (rooms.hasPlayer(hostId, playerId)) return;
 
-        players.setCurrentGameId(hostId);
+        const player = joinGame(hostId);
+        leaveOnDelete(hostId, playerId);
 
+        rooms.createRoom(new RoomInstance(hostId, player.username))
+        rooms.join(hostId, player.id);
+        emitter.emit('update-rooms');
+    })
 
-        // games.createGame(hostId, )
+    socket.on('join-game', (hostId) => {
+
+        if (!rooms.getRoomFromId(hostId)) return console.error(`\n Room not exist from ${hostId}`);
+        if (!clients.players.isLogged(playerId)) return clients.alertNotLogged();
+
+        if (rooms.hasPlayer(hostId, playerId)) return;
+
+        if (rooms.getRoomFromId(`game-${playerId}`)) {
+            rooms.removeRoom(`game-${playerId}`);
+            emitter.emit(`delete-game-${playerId}`);
+        }
+
+        const player = joinGame(hostId);
+        rooms.join(hostId, player.id);
+        
+        leaveOnDelete(hostId, playerId);
+        
+        const room = rooms.getRoomFromId(hostId)
+        
+        if (room.totalPlayers >= MIN_PLAYERS_START ) {
+
+            games.createGame(hostId, new GameInstance(hostId, room.players, new ServerMap(MAP_SIZE)))
+
+            const tilesData = games.gameInstances[hostId].map.getTilesData();
+
+            io.to(hostId).emit('create-ground-map', { mapData: tilesData, hostId });
+            rooms.removeRoom(hostId);
+            emitter.emit('update-rooms');
+        }
     })
 });
 
 
-server.listen(3000)
+server.listen(3030)

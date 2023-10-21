@@ -2,6 +2,7 @@ import { createAssetInstance } from "./assets";
 import * as THREE from 'three';
 import TWEEN from '@tweenjs/tween.js'
 
+
 export default class Map {
 
 /*
@@ -18,6 +19,7 @@ export default class Map {
 
     map = {};
     terrain = [];
+    tweens = [];
     
     // troops placed
     troops = [];
@@ -26,10 +28,10 @@ export default class Map {
 
         // add tiles in scene
         this.mixers = [];
+        this.tweens = [];
         this.map = mapData;
 
         this.needUpdateMixers = false
-        this.TWEEN = TWEEN
 
         const scene = window.sceneClass.scene
         scene.clear();
@@ -72,9 +74,6 @@ export default class Map {
                     createAssetInstance(tile.troop.id, x, y, tile.troop, (troop, mixerAnimation) => {
                         
                         scene.add(troop.mesh);
-                        
-                        this.tween = tween
-                        
                         this.mixers.push(mixerAnimation);
 
                         console.log(this.mixers);
@@ -85,12 +84,14 @@ export default class Map {
                         
                         troop.playRunAnimation()
                         
+                        let direction = x >= 8 ? 0 : 16
 
-                        new TWEEN.Tween(monkey.position)
-                        .to(
-                            { x: 8, z: 8 },
-                            500
-                        ).start()
+                        this.tweens.push(
+                            new TWEEN.Tween(troop.mesh.position)
+                            .to({ x: direction, z: y }, 3000
+                            ).start()
+                            .onComplete(() => scene.remove(troop.mesh)));
+
 
                         setTimeout(() => {
                             this.needUpdateMixers = true

@@ -3,12 +3,15 @@
     z-index: 0;
     position: absolute;
     flex-direction: column;
-    background-color: cadetblue;
+    background-color: rgb(92, 123, 124);
     padding: 12px;
 
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+
+    color: rgb(255, 255, 255);
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 }
 
 #rooms-container {

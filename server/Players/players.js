@@ -1,4 +1,3 @@
-import Player from "./playerInstance.js"
 
 export default class Players {
 
@@ -6,25 +5,18 @@ export default class Players {
         this.playerInstances = {}
     }
 
-    signUpPlayer(id, username) {
+    signUpPlayer(player) {
+        
+        this.playerInstances[player.id] = player;
 
-        if (username.length === 0) {
-            username = id;
-        }
-
-        const player = new Player(id, username)
-        this.playerInstances[id] = player;
-
-        console.log(`\n player connect`);
-        console.dir(this.playerInstances[id]);
+        console.log(`\n player connect ${player.id}`);
     }
 
     disconnectPlayer(id) {
 
-        console.log(`\n player disconnected`);
-        console.dir(this.playerInstances[id]);
-
         delete this.playerInstances[id];
+        
+        console.log(`\n player disconnected ${id}`);
     }
 
     isLogged(id) {
@@ -36,16 +28,32 @@ export default class Players {
         return true;
     }
 
-    getCurrentGameId(id) {
+    getPlayerFromId(id) {
+
+        if (!this.playerInstances[id]) {
+            console.error(`\n Error to get player from id: ${id}`);
+            return;
+        }
+
+        return this.playerInstances[id];
+    }
+
+    getCurrentGameFromId(id) {
 
         if (this.playerInstances[id]?.gameId) {
-            return this.playerInstances[id].gameId
+            return this.playerInstances[id].gameId;
         }
         
         return ''; 
     }
 
-    setCurrentGameId(id) {
-        this.playerInstances[id].gameId = id;
+    setGameFromId(id, hostId) {
+
+        if (!this.playerInstances[id]) {
+            console.error(`\n Error to get player from id: ${id}`);
+            return;
+        }
+
+        this.playerInstances[id].gameId = hostId
     }
 }

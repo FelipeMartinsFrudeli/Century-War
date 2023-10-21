@@ -72,7 +72,7 @@ export default class Game {
 
             if (mapClass.needUpdateMixers) {
                 this.sceneClass.updateMixers(mapClass.mixers);
-                this.sceneClass.updateTween(mapClass.tween)
+                this.sceneClass.updateTween(mapClass.tweens)
                 mapClass.needUpdateMixers = false
             }
 
