@@ -47,4 +47,5 @@ export default class ClientsConnection {
 
         this.players.disconnectPlayer(playerId);
     }
+
 }

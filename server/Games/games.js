@@ -9,17 +9,13 @@ export default class Games {
     createGame(hostId, gameInstace) {
 
         this.gameInstances[hostId] = gameInstace;
-        this.gameInstances[hostId].setup();
 
         console.log(`\n game instance create: ${hostId}`);
     }
 
     deleteGame(hostId) {
 
-        if (!this.gameInstances[hostId]) {
-            console.error(`\n game instance: ${hostId} already deleted`);
-            return;
-        }
+        if (!this.gameInstances[hostId]) return console.error(`\n game instance: ${hostId} already deleted`);
 
         this.gameInstances[hostId].deleteMap();
         delete this.gameInstances[hostId];

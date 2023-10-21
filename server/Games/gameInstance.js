@@ -5,11 +5,18 @@ export default class GameInstance {
         this.hostId = hostId;
         this.players = players;
         this.map = map;
+
+        this.map.setOwners(this.players);
     }
 
-    setup() {
+    getTilesData() {
         if (!this.map) return console.error(`map not exists`);
-        this.map.createMap(this.players);
+        return this.map.getData()
+    }
+
+    getMap() {
+        if (!this.map) return console.error(`map not exists`);
+        return this.map
     }
 
     deleteMap() {

@@ -103,6 +103,7 @@ io.sockets.on('connection', (socket) => {
         if (rooms.hasPlayer(hostId, playerId)) return;
 
         const player = joinGame(hostId);
+        
         leaveOnDelete(hostId, playerId);
 
         rooms.createRoom(new RoomInstance(hostId, player.username))
@@ -123,23 +124,75 @@ io.sockets.on('connection', (socket) => {
         }
 
         const player = joinGame(hostId);
-        rooms.join(hostId, player.id);
         
+        rooms.join(hostId, player.id);
         leaveOnDelete(hostId, playerId);
         
         const room = rooms.getRoomFromId(hostId)
         
-        if (room.totalPlayers >= MIN_PLAYERS_START ) {
+        if ( room.totalPlayers >= MIN_PLAYERS_START ) {
 
             games.createGame(hostId, new GameInstance(hostId, room.players, new ServerMap(MAP_SIZE)))
 
-            const tilesData = games.gameInstances[hostId].map.getTilesData();
+            const tilesData = games.getGameFromId(hostId).getTilesData();
 
             io.to(hostId).emit('create-ground-map', { mapData: tilesData, hostId });
             rooms.removeRoom(hostId);
             emitter.emit('update-rooms');
         }
     })
+
+    function checkGame() {
+        const playerCurrentGame = clients.players.getCurrentGameFromId(playerId);
+        if (playerCurrentGame === '') {
+            console.error('\n player is not in a game');
+            return false;
+        }
+        
+        const game = games.getGameFromId(playerCurrentGame)
+        if (!game.players.includes(playerId)) {
+            console.error(`player is not in current game`)
+            return false;
+        }
+
+        return true;
+    }
+
+    socket.on('place-troop', (data) => {
+
+        if (!data.troopName) return console.error('\n troopName is not defined');
+        if (!data.pos) return console.error('\n position is not defined');
+        
+        if (!checkGame()) return;
+
+        const playerCurrentGame = clients.players.getCurrentGameFromId(playerId);
+        const game = games.getGameFromId(playerCurrentGame);
+        game.map.placeTroop(playerId, data, (newTroop) => {
+
+            io.to(playerCurrentGame).emit('update-map', { updateType: 'placeTroop', newTroop });
+
+            setTimeout(() => {
+                game.map.removeTroop(playerId, { pos: data.pos }, (pos) => {
+                    io.to(playerCurrentGame).emit('update-map', { updateType: 'removeTroop', pos })
+                })
+            }, 1000)
+        })
+    })
+
+    socket.on('remove-troop', (data) => {
+        
+        if (!data.pos) return console.error('\n position is not defined');
+        
+        if (!checkGame()) return;
+        
+        const playerCurrentGame = clients.players.getCurrentGameFromId(playerId);
+        const game = games.getGameFromId(playerCurrentGame);
+        game.map.removeTroop(playerId, data, () => {
+            
+            io.to(playerCurrentGame).emit('update-map', { updateType: 'removeTroop', pos: data.pos });
+        })
+    })
+
 });
 
 

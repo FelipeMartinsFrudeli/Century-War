@@ -1,8 +1,8 @@
 localStorage.debug = '*';
 
 import { io } from "socket.io-client";
-import Game from './game_src/game';
-import UI from "./game_src/UI";
+import Game from './scripts/game';
+import UI from "./scripts/UI";
 
 const uid = function(){
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
