@@ -1,5 +1,6 @@
 var path = require('path');
 var nodeExternals = require('webpack-node-externals');
+const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 module.exports = {
     entry: './server.js',
@@ -15,5 +16,14 @@ module.exports = {
             use: 'babel-loader'
         }]
     },
-    externals: [nodeExternals()]
+    externals: [nodeExternals()],
+
+    plugins: [
+        new CopyWebpackPlugin({
+            patterns: [{ 
+                    from: './src/index.html', 
+                    to: 'public',
+                    noErrorOnMissing: true
+                }]
+        })],
 }

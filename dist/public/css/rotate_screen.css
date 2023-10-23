@@ -1,0 +1,63 @@
+
+#screen-alert {
+    height: 100vh;
+    width: 100vw;
+    position: absolute;
+}
+
+#rotate-screen {
+    font-family: sans-serif;
+    font-size: 20px;
+    color: #fff;
+    height: 100%;
+    margin: 0;
+}
+
+#rotate-screen-ui {
+    z-index: 40;
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    text-align: center;
+    padding: 45vh 0;
+    background-color: rgb(54, 54, 54);
+}
+
+#fullscreen-ui {
+    width: 24em;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(54, 54, 54, .95);
+    padding: 4vh 0;
+    border-radius: 8px;
+    margin-left: 2vh;
+    margin-top: 2vh;
+    z-index: 25;
+    position: relative;
+}
+
+#fullscreen-ui button {
+    font-size: 4vh;
+    font-weight: bold;
+    width: 80%;
+    padding: 1em;
+    border-radius: 8px;
+    background-color: rgb(82, 82, 82);
+    border: none;
+    margin: .5em 0;
+    color: #fff;
+}
+
+#fullscreen-ui #fullscreen-allow {
+    background-color: rgb(27, 133, 204);
+}
+
+#fullscreen-ui div {
+    width: 80%;
+    padding: 4vh;
+    color: #fff;
+    font-family: sans-serif;
+    font-size: 5vh;
+}

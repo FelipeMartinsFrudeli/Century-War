@@ -1,0 +1,30 @@
+#rooms {
+    display: flex;
+    position: absolute;
+    flex-direction: column;
+    background-color: rgb(92, 123, 124);
+    padding: 12px;
+
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    color: rgb(255, 255, 255);
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+#rooms-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+#rooms-container button {
+    margin-top: .5em;
+    padding: 6px 0;
+}
+
+#create-room {
+    margin-top: 1em;
+    padding: 6px 0;
+}

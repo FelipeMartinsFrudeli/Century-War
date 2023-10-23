@@ -19,11 +19,15 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-app.use(express.static('dist/public'));
+if (process.env.NODE_ENV == 'production') {
+    app.use(express.static('public'));
+    var indexFile = path.resolve('./public/index.html');
+} else {
+    app.use(express.static('dist/public'));
+    var indexFile = path.resolve('./src/index.html');
+}
 
 app.get('/', (req, res) => {
-
-    const indexFile = path.resolve('./src/index.html');
 
     fs.readFile(indexFile, 'utf8', (err, data) => {
         if (err) {
