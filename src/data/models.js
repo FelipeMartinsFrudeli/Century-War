@@ -2,7 +2,8 @@ export default {
     'knight': () => {
         return {
             size: 1,
-            path: '/assets/characters/GLTF/Knight.glb',
+            path: 'assets/characters/GLTF/Warrior.glb',
+            mapTexturePath: 'assets/characters/Textures/Warrior_Texture.png',
             animations: {
                 run: ['Run'],
                 idle: ['Idle'],
@@ -10,10 +11,11 @@ export default {
             }
         }
     },
-    'warrior': () => {
+    'rogue': () => {
         return {
             size: 1,
-            path: '/assets/characters/GLTF/Warrior.glb',
+            path: 'assets/characters/GLTF/Rogue.glb',
+            mapTexturePath: 'assets/characters/Textures/Rogue_Texture.png',
             animations: {
                 run: ['Run'],
                 idle: ['Idle', 'Idle2'],

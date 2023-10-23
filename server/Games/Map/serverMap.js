@@ -44,7 +44,7 @@ export default class ServerMap {
         const name = data.troopName
         if (typeof name !== 'string') console.error(`\n troopName needs to be a string`);
 
-        if (!troops[name]) return console.error(`\n error to find troop ${troopName}`);
+        if (!troops[name]) return console.error(`\n error to find troop ${name}`);
         const newTroop = troops[name](playerId);
 
         this.mapInstance.tileInfo[x][y].troop = newTroop;
@@ -66,7 +66,7 @@ export default class ServerMap {
         callback(data.pos)
     }
 
-    setOwners(players) {
+    setOwners(players, teams) {
 
         const tiles = this.mapInstance.tiles;
         const size = tiles.size;
@@ -74,7 +74,9 @@ export default class ServerMap {
 
         for (let x = 0; x < size; x++) {
 
-            let owner = x > size/2 ? players[0] : players[1]
+            let index = x > size/2 ? 0 : 1
+            let ownerPlayer = players[index]
+            let team = teams[ownerPlayer]
 
             const column = [];
 
@@ -82,10 +84,11 @@ export default class ServerMap {
 
                 const tile = {
                     pos: { x, y },
-                    owner,
+                    owner: ownerPlayer,
                     troop: undefined,
                 }
 
+                this.mapInstance.tiles.setTerrain(team, { x, y })
                 column.push(tile);
             }
 

@@ -8,8 +8,6 @@ export default class Player {
 
         this.gameId = '';
         this.points = 0;
-
-        this.subscribes = {};
     }
 
 }

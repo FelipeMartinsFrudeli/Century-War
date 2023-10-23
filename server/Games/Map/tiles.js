@@ -9,13 +9,12 @@ export default class Tiles {
 
             const column = [];
 
-            let team = x > size/2 ? 'france' : 'england'
-
             for (let y = 0; y < size; y++) {
 
                 const tile = {
                     pos: { x, y },
-                    terrainId: team
+                    terrainId: undefined,
+                    // add trees
                 };
 
                 column.push(tile);
@@ -26,6 +25,12 @@ export default class Tiles {
 
         this.size = size;
         this.data = data;
+    }
+
+    setTerrain(id, { x, y }) {
+        if (!this.data) return console.error(`\n Tiles data is not defined`);
+        if (!this.data[x]?.[y]) return console.error(`\n Error to set terrain, inbalid position`);
+        this.data[x][y].terrainId = id
     }
 
     remove() {

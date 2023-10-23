@@ -46,7 +46,7 @@ const rooms = new Rooms();
 const games = new Games();
 
 emitter.on('update-rooms', () => {
-    io.sockets.emit('update-rooms', { type: 'update-rooms', rooms: rooms.getRooms() })
+    io.sockets.emit('update-rooms', rooms.getRooms())
 })
 
 io.sockets.on('connection', (socket) => {
@@ -66,13 +66,8 @@ io.sockets.on('connection', (socket) => {
         if (gameId) {
             if (rooms.getRoomFromId(gameId)) rooms.removeRoom(gameId);
             if (games.getGameFromId(gameId)) games.deleteGame(gameId);
-            emitter.emit(`delete-${gameId}`)
+            emitter.emit(`delete-${gameId}`, playerId)
         }
-
-        // console.log(`\n`);
-        // console.dir(games)
-        // console.log(`\n`);
-        // console.dir(rooms)
 
         clients.clientDisconnect(playerId);
     })
@@ -88,10 +83,13 @@ io.sockets.on('connection', (socket) => {
     }
 
     function leaveOnDelete(hostId, playerId) {
-        emitter.once(`delete-${hostId}`, () => {
-            socket.emit('remove-map')
-            socket.leave(playerId);
+        emitter.once(`delete-${hostId}`, (leftPlayer) => {
+
+            const leftPlayerName = clients.players.getPlayerFromId(leftPlayer)?.username
+            
+            socket.emit('remove-game', leftPlayerName);
             emitter.emit('update-rooms');
+            socket.leave(playerId);
         })
     }
 
@@ -111,7 +109,7 @@ io.sockets.on('connection', (socket) => {
         emitter.emit('update-rooms');
     })
 
-    socket.on('join-game', (hostId) => {
+    socket.on('join-room', (hostId) => {
 
         if (!rooms.getRoomFromId(hostId)) return console.error(`\n Room not exist from ${hostId}`);
         if (!clients.players.isLogged(playerId)) return clients.alertNotLogged();
@@ -134,11 +132,16 @@ io.sockets.on('connection', (socket) => {
 
             games.createGame(hostId, new GameInstance(hostId, room.players, new ServerMap(MAP_SIZE)))
 
-            const tilesData = games.getGameFromId(hostId).getTilesData();
+            const gameInstance = games.getGameFromId(hostId)
+            io.to(hostId).emit('new-game', gameInstance);
+            io.to(hostId).emit('create-ground-map');
 
-            io.to(hostId).emit('create-ground-map', { mapData: tilesData, hostId });
             rooms.removeRoom(hostId);
             emitter.emit('update-rooms');
+            
+            setTimeout(() => {
+                gameInstance.loaded = true
+            }, 500)
         }
     })
 
@@ -149,9 +152,12 @@ io.sockets.on('connection', (socket) => {
             return false;
         }
         
-        const game = games.getGameFromId(playerCurrentGame)
-        if (!game.players.includes(playerId)) {
-            console.error(`player is not in current game`)
+        const gameInstance = games.getGameFromId(playerCurrentGame)
+        if(!gameInstance.loaded) return console.error('gameInstance is not loaded')
+        if(!gameInstance.players) return console.error('players is not undefined');
+
+        if (!gameInstance.players.includes(playerId)) {
+            console.error(`player is not in current gameInstance`)
             return false;
         }
 
@@ -177,8 +183,9 @@ io.sockets.on('connection', (socket) => {
                 })
             }, 1000)
         })
-    })
+    }) 
 
+    /*
     socket.on('remove-troop', (data) => {
         
         if (!data.pos) return console.error('\n position is not defined');
@@ -191,7 +198,7 @@ io.sockets.on('connection', (socket) => {
             
             io.to(playerCurrentGame).emit('update-map', { updateType: 'removeTroop', pos: data.pos });
         })
-    })
+    })*/
 
 });
 

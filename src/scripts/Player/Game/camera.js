@@ -1,13 +1,13 @@
 import * as THREE from "three";
 
-export default class Camera {
+export default class PlayerCamera {
 
     // LEFT_MOUSE_BTN = 0;
     // MIDDLE_MOUSE_BTN = 1;
     // RIGHT_MOUSE_BTN = 2;
 
-    MIN_CAMERA_RADIUS = 2;
-    MAX_CAMERA_RADIUS = 10;
+    MIN_CAMERA_RADIUS = 8;
+    MAX_CAMERA_RADIUS = 16;
     MIN_CAMERA_ELEVATION = 30;
     MAX_CAMERA_ELEVATION = 180;
 
@@ -20,28 +20,49 @@ export default class Camera {
     isMiddleMouseDown = false;
 
     cameraRadius = 6;
-    cameraAzimuth = 400;
     cameraElevation = 80;
 
+    constructor(canvas, startPosX = 16, cameraAzimuth = 180) {
 
-    constructor() {
-        this.cameraOrigin = new THREE.Vector3();
+        this.cameraAzimuth = cameraAzimuth
+        this.cameraOrigin = new THREE.Vector3(startPosX, 0, 12);
         this.RADIAN = (Math.PI / 360);
         this.Y_AXIS = new THREE.Vector3(0, 1, 0);
 
         this.cameraRadius = (this.MIN_CAMERA_RADIUS + this.MAX_CAMERA_RADIUS) / 2;
 
-        const gameWindow = window.gameWindow;
-        const camera = new THREE.PerspectiveCamera(75, gameWindow.offsetWidth / gameWindow.offsetHeight, 0.1, 10000);
-    
-        camera.lookAt(0, 0, 0);
+        // const canvas = document.getElementById(gameWindow);
+        const camera = new THREE.PerspectiveCamera(75, canvas.offsetWidth / canvas.offsetHeight, 0.1, 10000);
+        
+        camera.position.add(this.cameraOrigin);
+        camera.lookAt(this.cameraOrigin);
         
         window.addEventListener('resize', () => {
-            camera.aspect = gameWindow.offsetWidth / gameWindow.offsetHeight;
+            camera.aspect = canvas.offsetWidth / canvas.offsetHeight;
             camera.updateProjectionMatrix();
         })
 
+        window.onmousedown = this.onMouseDown.bind(this);
+        window.onmousemove = this.onMouseMove.bind(this);
+        window.onmouseup = this.onMouseUp.bind(this);
+
+        window.ontouchstart = this.onTouchStart.bind(this);
+        window.ontouchmove = this.onTouchMove.bind(this);
+        window.ontouchend = this.onTouchEnd.bind(this);
+
         this.camera = camera
+
+        this.updateCameraPosition();
+    }
+
+    disconnectCameraEvents() {
+        window.onmousedown = () => {};
+        window.onmousemove = () => {};
+        window.onmouseup = () => {};
+
+        window.ontouchstart = () => {};
+        window.ontouchmove = () => {};
+        window.ontouchend = () => {};
     }
 
     updateCameraPosition() {
@@ -55,8 +76,8 @@ export default class Camera {
         this.camera.position.z = cameraRadius * Math.cos(cameraAzimuth * RADIAN) * Math.cos(cameraElevation * RADIAN);
         
         this.camera.position.add(this.cameraOrigin);
-        this.camera.lookAt(this.cameraOrigin);
 
+        this.camera.lookAt(this.cameraOrigin);
         this.camera.updateMatrix();
     }
 

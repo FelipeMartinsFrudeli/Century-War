@@ -30,3 +30,9 @@ body {
     width: 2em;
     margin: 1em;
 }
+
+#player-left-popup {
+    display: flex;
+    justify-content: center;
+    z-index: 20;
+}

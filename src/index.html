@@ -5,12 +5,13 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, user-scalable=no">
     <title>Document</title>
+    <link rel="stylesheet" href="css/bootstrap.css">
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/rotate_screen.css">
-    <link rel="stylesheet" href="css/lobby.css">
+    <link rel="stylesheet" href="css/rooms.css">
     <link rel="stylesheet" href="css/sign_up.css">
     <link rel="stylesheet" href="css/game_ui.css">
-    <script src='bundle_client.js' defer></script>
+    <script src='bundle_client.js'></script>
 </head>
 <body scroll="no">
     <div id="root-window">
@@ -29,12 +30,12 @@
                       Tenha uma experiencia melhor jogando em tela cheia
                   </div>
                   
-                  <button id="toggle">Jogar em tela cheia!</button>
-                  <button id="toggle-off">Não obrigado, (alguns bugs podem ocorrer)</button>
+                  <button id="fullscreen-allow">Jogar em tela cheia!</button>
+                  <button id="fullscreen-refuse">Não obrigado, (alguns bugs podem ocorrer)</button>
                 </div>
             </div>
 
-            <div id="lobby">
+            <div id="rooms">
                 <h1>Entre em uma sala:</h1>
                 <div id="rooms-container"></div>
                 <button id="create-room">Criar nova sala +</button>
@@ -47,7 +48,6 @@
             </div>
 
             <div id="game-ui">
-
                 <div id="troop-tools">
                     <div id="troop-add-container">
                         <div class="card-troop"></div>
@@ -60,9 +60,12 @@
                         <button id="troop-remove-button">Excluir</button>
                     </div>
                 </div>
-
             </div>
         
+            <div id="player-left-popup" class="alert alert-info w-100" role="alert">
+                O player &#8201;<a href="#" class="alert-link" id="player-left-text">player</a>&#8201; saiu do jogo.
+            </div>
+
         </div>
     </div>
 

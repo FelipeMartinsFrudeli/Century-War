@@ -6,7 +6,20 @@ export default class GameInstance {
         this.players = players;
         this.map = map;
 
-        this.map.setOwners(this.players);
+        this.teams = {}
+        const random = Math.random() * (100 - 1) + 1;
+
+        if (random < 50) {
+            this.teams[players[0]] = 'england'
+            this.teams[players[1]] = 'france'
+        }
+
+        if (random >= 50) {
+            this.teams[players[0]] = 'france'
+            this.teams[players[1]] = 'england'
+        }
+        
+        this.map.setOwners(this.players, this.teams);
     }
 
     getTilesData() {

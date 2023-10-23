@@ -1,6 +1,5 @@
-#lobby {
-    display: none;
-    z-index: 0;
+#rooms {
+    display: flex;
     position: absolute;
     flex-direction: column;
     background-color: rgb(92, 123, 124);

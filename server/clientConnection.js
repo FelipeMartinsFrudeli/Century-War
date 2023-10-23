@@ -35,8 +35,8 @@ export default class ClientsConnection {
             return;
         };
 
-        const username = data.username ? data.username : '';
-        if (username.length === 0) username = id;
+        let username = typeof data.username === 'string' ? data.username : '';
+        if (username.length === 0) username = playerId;
 
         this.players.signUpPlayer(new Player(playerId, username));
     }
