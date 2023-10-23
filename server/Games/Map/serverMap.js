@@ -86,6 +86,7 @@ export default class ServerMap {
                     pos: { x, y },
                     owner: ownerPlayer,
                     troop: undefined,
+                    modelId: undefined
                 }
 
                 this.mapInstance.tiles.setTerrain(team, { x, y })

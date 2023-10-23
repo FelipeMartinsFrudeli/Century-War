@@ -16,16 +16,14 @@ export default class AssetsLoader {
         this.dracoLoader = new DRACOLoader();
         this.dracoLoader.setDecoderPath('/examples/jsm/libs/draco/');
         this.loader.setDRACOLoader(this.dracoLoader);
-
-        this.groups = {};
     }
 
     async loadModel(name) {
 
         if (!models[name]) return console.error(`model ${name} is not a valid model`);
-        
+                
         const model = models[name]();
-        const modelId = `${name}-${randomId()}`;
+        const loadedModel = {}
 
         const gltf = await this.loader.loadAsync(`../../${model.path}`)
 
@@ -36,7 +34,7 @@ export default class AssetsLoader {
                 if (node.isMesh) {
                     const mapTexture = new THREE.TextureLoader().load(`../../${model.mapTexturePath}`)
                     node.material = new THREE.MeshLambertMaterial({
-                        map: mapTexture
+                        // map: mapTexture
                     })
                 }
             })
@@ -47,7 +45,7 @@ export default class AssetsLoader {
             let mixer = new THREE.AnimationMixer(mesh);
             var actions = {};
 
-            this.groups[modelId] = gltf;
+            loadedModel.model = gltf;
 
             for (const animation in model.animations) {
 
@@ -62,11 +60,11 @@ export default class AssetsLoader {
                 }
             }
             
-            this.groups[modelId].actions = actions
-            this.groups[modelId].mixer = mixer;
+            loadedModel.model.actions = actions
+            loadedModel.model.mixer = mixer;
         }
 
-        return this.groups[modelId];
+        return loadedModel;
     }
 
     

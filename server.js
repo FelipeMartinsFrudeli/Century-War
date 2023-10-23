@@ -177,11 +177,11 @@ io.sockets.on('connection', (socket) => {
 
             io.to(playerCurrentGame).emit('update-map', { updateType: 'placeTroop', newTroop });
 
-            setTimeout(() => {
-                game.map.removeTroop(playerId, { pos: data.pos }, (pos) => {
-                    io.to(playerCurrentGame).emit('update-map', { updateType: 'removeTroop', pos })
-                })
-            }, 1000)
+            // setTimeout(() => {
+            //     game.map.removeTroop(playerId, { pos: data.pos }, (pos) => {
+            //         io.to(playerCurrentGame).emit('update-map', { updateType: 'removeTroop', pos })
+            //     })
+            // }, 1000)
         })
     }) 
 

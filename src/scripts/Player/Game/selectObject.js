@@ -16,7 +16,10 @@ export default class SelectObject {
             this.raycaster.setFromCamera(this.mouse, camera);
 
             let intersect = this.raycaster.intersectObjects(Scene.scene.children, false);
+            
             if (intersect.length > 0) {
+                if (typeof intersect[0]?.object?.material?.emissive?.setHex != 'function') return
+                
                 if (this.selectedObject && this.selectedObject.type === "Mesh") {
                     this.selectedObject.material.emissive.setHex(0);
                 };
@@ -24,7 +27,6 @@ export default class SelectObject {
                 this.selectedObject = intersect[0].object;
 
                 if (this.selectedObject.type === "Mesh") {
-
                     this.selectedObject.material.emissive.setHex(0x55aaaa)
                     this.selectObeject(this.selectedObject);
                 }

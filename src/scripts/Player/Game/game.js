@@ -29,8 +29,8 @@ export default class PlayerGame {
 
             this.Scene.updateMixers([])
 
-           this.clientMap.removeUpdateMixerEvents();
-           this.Scene.stopRender();
+            this.clientMap.removeUpdateMixerEvents();
+            this.Scene.stopRender();
 
             this.playerSelectObjects.removeAllListeners();
             this.playerSelectObjects.removeClickEvent();
@@ -49,7 +49,11 @@ export default class PlayerGame {
             this.Scene.render(this.Camera.camera);
             this.clientMap.removeListener(loadEvent);
 
-            this.clientMap.onUpdateMixers(() => this.Scene.updateMixers(this.clientMap.mixers))
+            this.clientMap.onUpdateMixers(() => {
+                this.Scene.updateMixers(this.clientMap.mixers);
+                this.Scene.updateTween(this.clientMap.tweens)
+                // this.Scene.updateBoxHelper(this.clientMap.BoxHelper);
+            })
         }
 
         this.clientMap.onLoadMap(loadEvent);

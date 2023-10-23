@@ -1,3 +1,5 @@
+import randomId from "../scripts/utils/idGenerator";
+
 export default {
     'knight': (owner) => {
         return {
@@ -10,7 +12,8 @@ export default {
             updated: true,
             update: function() {
                 this.updated = false;
-            }
+            },
+            modelId: `knight-${randomId()}`,
         }
     },
     'rogue': (owner) => {
@@ -24,7 +27,8 @@ export default {
             updated: true,
             update: function() {
                 this.updated = false;
-            }
+            },
+            modelId: `rogue-${randomId()}`,
         }
     },
 }

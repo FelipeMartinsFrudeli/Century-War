@@ -128,6 +128,6 @@ export default function connect() {
         if (!gameInstance) return console.error(`gameInstance is ${gameInstance}`);
         
         // console.log(data, `data`);
-        game.clientMap.updateMap(data.updateType, data, gameInstance.players);
+        game.clientMap.updateMap(data.updateType, data, gameInstance.players, player.id);
     })
 }

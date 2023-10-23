@@ -57,9 +57,14 @@ export default class PlayerScene {
 
     mixers = []
     tweens = []
+    boxHelper = []
 
     updateMixers(newMixers) {
         this.mixers = newMixers;
+    }
+
+    updateBoxHelper(boxHelper) {
+        this.boxHelper = boxHelper;
     }
 
     updateTween(tweens) {
@@ -82,6 +87,10 @@ export default class PlayerScene {
 
             for (const tween of this.tweens) {
                 if (tween.update) tween.update();
+            }
+
+            for (const boxHelper of this.boxHelper) {
+                if (boxHelper.update) boxHelper.update();
             }
 
             this.stats.update();
