@@ -31,7 +31,7 @@
                   </div>
                   
                   <button id="fullscreen-allow">Jogar em tela cheia!</button>
-                  <button id="fullscreen-refuse">Não obrigado, (alguns bugs podem ocorrer)</button>
+                  <button id="fullscreen-refuse">Não obrigado</button>
                 </div>
             </div>
 
@@ -66,6 +66,22 @@
                 O player &#8201;<a href="#" class="alert-link" id="player-left-text">player</a>&#8201; saiu do jogo.
             </div>
 
+            <div id="player-cooldown-popup" class="alert alert-info w-100" role="alert">
+                Espere 2 seg para colocar a tropa novamente
+            </div>
+
+            <div id="cards">
+                <p id="points" class="text-white h4">Pontos de vida</p>
+                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                    <label id="knight" class="btn btn-secondary p-1">
+                      <button class="p-2" name="options" id="option1"> Cavalheiro </button>
+                    </label>
+                    <label id="rogue" class="btn btn-secondary p-1 active">
+                      <button class="p-2" name="options" id="option2"> Ladrão </button>
+                    </label>
+                  </div>
+            </div>
+            
         </div>
     </div>
 

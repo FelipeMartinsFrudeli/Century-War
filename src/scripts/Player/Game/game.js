@@ -52,8 +52,9 @@ export default class PlayerGame {
             this.clientMap.onUpdateMixers(() => {
                 this.Scene.updateMixers(this.clientMap.mixers);
                 this.Scene.updateTween(this.clientMap.tweens)
-                // this.Scene.updateBoxHelper(this.clientMap.BoxHelper);
             })
+
+            this.playerSelectObjects.connectClickEvent();
         }
 
         this.clientMap.onLoadMap(loadEvent);

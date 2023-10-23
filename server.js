@@ -55,7 +55,7 @@ io.sockets.on('connection', (socket) => {
     const playerId = handshake.auth.id;
 
     socket.on('player-login', (data) => {
-
+        socket.join(playerId);
         clients.clientLogin(playerId, data);
         emitter.emit('update-rooms');
     })
@@ -77,6 +77,8 @@ io.sockets.on('connection', (socket) => {
 
         if (player.gameId != '') games.deleteGame(hostId);
         clients.players.setGameFromId(playerId, hostId);
+        clients.players.setLifeFromId(playerId, 300);
+        socket.emit('life-player', 300);
 
         socket.join(hostId);
         return player
@@ -153,6 +155,7 @@ io.sockets.on('connection', (socket) => {
         }
         
         const gameInstance = games.getGameFromId(playerCurrentGame)
+        if(!gameInstance) return console.error('gameInstance is undefined')
         if(!gameInstance.loaded) return console.error('gameInstance is not loaded')
         if(!gameInstance.players) return console.error('players is not undefined');
 
@@ -177,18 +180,45 @@ io.sockets.on('connection', (socket) => {
 
             io.to(playerCurrentGame).emit('update-map', { updateType: 'placeTroop', newTroop });
 
-            // setTimeout(() => {
-            //     game.map.removeTroop(playerId, { pos: data.pos }, (pos) => {
-            //         io.to(playerCurrentGame).emit('update-map', { updateType: 'removeTroop', pos })
-            //     })
-            // }, 1000)
+            setTimeout(() => {
+                io.to(playerCurrentGame).emit('update-map', { updateType: 'moveTroop', pos: newTroop.pos });
+            }, 800)
+
+            setTimeout(() => {
+                game.map.removeTroop(playerId, { pos: data.pos }, (pos) => {
+                    io.to(playerCurrentGame).emit('update-map', { updateType: 'removeTroop', pos })
+                })
+            }, 4000)
         })
     }) 
 
-    /*
+    socket.on('damage-player', (data) => {
+
+        if (!data?.playerId || !data?.damage) return;
+        
+        const player = clients.players.getPlayerFromId(data.playerId);
+
+        const newLife = player.life - data.damage
+        if (typeof newLife != 'number') return console.error('invalid life');
+
+        if (newLife <= 0) {
+            
+            clients.players.setLifeFromId(playerId,  0);
+            io.to(data.playerId).emit('life-player', 0);
+            socket.disconnect(true);
+
+        } else {
+            
+            clients.players.setLifeFromId(playerId,  newLife);
+            io.to(data.playerId).emit('life-player', newLife);
+        }
+        
+        // console.log(`damage event`, data);
+    })
+    
     socket.on('remove-troop', (data) => {
         
-        if (!data.pos) return console.error('\n position is not defined');
+        if (!data?.pos) return console.error('\n position is not defined');
         
         if (!checkGame()) return;
         
@@ -198,7 +228,7 @@ io.sockets.on('connection', (socket) => {
             
             io.to(playerCurrentGame).emit('update-map', { updateType: 'removeTroop', pos: data.pos });
         })
-    })*/
+    })
 
 });
 

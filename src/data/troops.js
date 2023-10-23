@@ -6,10 +6,11 @@ export default {
             id: 'knight',
             name: 'cavalheiro',
             owner: owner,
-            damage: 10,
+            damage: 100,
             speed: 5,
             life: 150,
             updated: true,
+            counter: 4,
             update: function() {
                 this.updated = false;
             },
@@ -21,10 +22,11 @@ export default {
             id: 'rogue',
             name: 'ladrão',
             owner: owner,
-            damage: 10,
+            damage: 100,
             speed: 8,
             life: 80,
             updated: true,
+            counter: 4,
             update: function() {
                 this.updated = false;
             },

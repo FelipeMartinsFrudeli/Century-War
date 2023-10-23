@@ -8,6 +8,7 @@ export default class LoginGUI {
         this.playerId = playerId;
         
         $('#player-left-popup').hide();
+        $('#player-cooldown-popup').hide();
         $('#sign-up').hide();
     }
     

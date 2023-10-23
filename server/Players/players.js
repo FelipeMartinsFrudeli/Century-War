@@ -56,4 +56,14 @@ export default class Players {
 
         this.playerInstances[id].gameId = hostId
     }
+
+    setLifeFromId(id, value) {
+
+        if (!this.playerInstances[id]) {
+            console.error(`\n Error to get player from id: ${id}`);
+            return;
+        }
+
+        this.playerInstances[id].life = value
+    }
 }

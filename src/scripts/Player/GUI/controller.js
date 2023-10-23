@@ -14,6 +14,8 @@ export default class ControllerGUI {
         this.playerLogin = new LoginGUI(playerId); 
         this.rooms = new RoomsGUI(playerId);
         this.selectedTroop = 'rogue'
+
+        $('#cards').hide().css('z-index', 0)
     }
 
     setupGui() {
@@ -48,6 +50,17 @@ export default class ControllerGUI {
 
     gameStart() {
         this.rooms.showRooms(false)
+        $('#cards').fadeIn(400).css('z-index', 25)
+
+        const changeTroop = (event, id) => {
+
+            $(`#${this.selectedTroop}`).removeClass('active')
+            $(`#${id}`).addClass('active')
+            this.selectedTroop = id
+        }
+
+        $('#knight')[0].onclick = (event) => changeTroop(event, 'knight')
+        $('#rogue')[0].onclick = (event) => changeTroop(event, 'rogue')
     }
 
 }

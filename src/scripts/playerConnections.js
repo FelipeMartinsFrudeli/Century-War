@@ -1,6 +1,8 @@
 
 import { io } from "socket.io-client";
 
+import $, { type } from 'jquery';
+
 import randomId from './utils/idGenerator';
 import ControllerGUI from "./Player/GUI/controller";
 import Player from "./Player/playerInstance";
@@ -18,6 +20,10 @@ export default function connect() {
           id: playerId
         }
     });
+    
+    let cooldown = false
+    let alertCooldown = false
+
     
     window.addEventListener('contextmenu', (e) => e.preventDefault(), false);
     
@@ -83,6 +89,11 @@ export default function connect() {
     
         game.playerSelectObjects.onSelectObject((selectedObject) => {
             
+            if (cooldown == true) return;
+            cooldown = true
+
+            setTimeout(() => cooldown = false, 1000)
+
             const userData = selectedObject.userData
             if (!userData) return console.error(`Error to get userData`);
             if (typeof userData.x != 'number' || typeof userData.y != 'number') return console.error(`userData position is invalid`);
@@ -90,6 +101,7 @@ export default function connect() {
             const { x, y } = userData;
             const troopName = controllerGui.selectedTroop
             
+            if (x < 20 && x > 4 ) return;
             socket.emit('place-troop', { troopName, pos: { x, y } })
         })
 
@@ -103,6 +115,12 @@ export default function connect() {
         controllerGui.gameStart()
     })
     
+    socket.on('life-player', (life) => {
+        console.log(life);
+        if (typeof life != 'number') return console.error('life is NaN');
+        $('#points').text(`Pontos de vida: ${life}`)
+    })
+
     socket.on('create-ground-map', () => {
         if (!games[player.gameId]) return console.log(`Player is not in a game, game id ${player.gameId}`);
         
@@ -117,17 +135,21 @@ export default function connect() {
         game.removeGame(playerLeftName);
     
         controllerGui.rooms.showRooms(true);
+        $('#cards').hide().css('z-index', 0)
     })
     
     socket.on('update-map', (data) => {
         if (!data) return console.error(`Error to receive data from update-map: ${data}`);
         if (!data.updateType) return console.error(`Update type is not defined: ${data}`);
         
+        if (!games[player.gameId]) return console.error(`game is ${games[player.gameId]}`);
         const game = games[player.gameId];
         const gameInstance = game.gameInstance
         if (!gameInstance) return console.error(`gameInstance is ${gameInstance}`);
         
         // console.log(data, `data`);
-        game.clientMap.updateMap(data.updateType, data, gameInstance.players, player.id);
+        game.clientMap.updateMap(data.updateType, data, gameInstance.players, player.id, (type, data) => {
+            socket.emit(type, data)
+        });
     })
 }

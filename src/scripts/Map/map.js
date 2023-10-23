@@ -18,11 +18,10 @@ export default class ClientMap {
 
         this.terrain = [];
         this.troops = [];
+        this.enemys = [];
         
         this.observers = {};
-        
-        // this.staticCollideMesh = {}
-        // this.BoxHelper = [];
+
 
         this.tweens = [];
         this.mixers = [];
@@ -30,13 +29,16 @@ export default class ClientMap {
         this.assetsLoader = new AssetsLoader()
 
         this.updateMapMethods = {
-            'placeTroop': async (data, players, playerId) => {
+            'placeTroop': async (data, players, playerId, socketCallback) => {
 
                 const troop = data.newTroop
                 if (!troop) return console.error(`newTroop data is ${troop}`);
+                this.groupsModels[troop.modelId] = {}
+                this.groupsModels[troop.modelId].loadedTroop = false
                 
                 const { x, y } = troop.pos;
                 if (typeof x != 'number' || typeof y != 'number') return console.error(`newTroop position is not a number`);
+
 
                 const loadedModel = await this.assetsLoader.loadModel(troop.id);
                 const model = loadedModel.model
@@ -54,104 +56,168 @@ export default class ClientMap {
                 // console.log('model', model);
                 model.currentAnimation = model.actions.idle[0]
                 model.actions.idle[0].action.play()
+
+                model.modelId = troop.modelId
+                model.initialPosition = {x,y}
                 
                 this.mixers.push(model.mixer)
+                
                 
                 if(!this.getMapData()) return;
                 this.troops[x][y] = troop
                 this.groupsModels[troop.modelId] = model
+                this.groupsModels[troop.modelId].loadedTroop = false
                 
-                // model.scene.hitbox = new THREE.Mesh(
-                //     new THREE.BoxGeometry(4, 4, 4),
-                //     new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.5 })
-                // );
+                if (playerId != troop.owner) {
+                    this.enemys[y] = troop
+                    this.enemys[y].pos = {x, y}
+                }
 
-                // const hitbox = model.scene.hitbox
-                // hitbox.position.set(x, 2, y);
-                // hitbox.boxCollider = new THREE.Box3().setFromObject(hitbox);
-
-                // model.scene.hitbox.helper = new THREE.BoxHelper(hitbox, 0xff0000 );
-                // const BBoxHelper = model.scene.hitbox.helper
-		        // playerScene.scene.add(hitbox);
-		        // playerScene.scene.add(BBoxHelper);
-                // this.BoxHelper.push(BBoxHelper);
-
-
-                // if (typeof this.staticCollideMesh[troop.owner] == 'undefined') this.staticCollideMesh[troop.owner] = []
-
-                // if (playerId == troop.owner) {
-
-                //     for(const id in this.staticCollideMesh) {
-                //         if (id != playerId) {
-                //             console.log(this.staticCollideMesh[id], "MESH COLLIDE ID");
-
-                //             this.staticCollideMesh[id].some((mesh) => {
-                //                 console.log(mesh.position);
-                //                 if (hitbox.boxCollider.intersectsBox(mesh.boxCollider)) {
-                //                     console.log(mesh, "MESH COLLIDE");
-                //                 }
-                //             })
-                //         }
-                //     }
-                // }
+                this.troops[x][y].remove = () => {
+                    if (typeof this.groupsModels[troop.modelId] == 'undefined') return
+                    const model = this.groupsModels[troop.modelId]
+                    if (model.scene) playerScene.scene.remove(model.scene);
+                    if (model.tween) {
+                        this.tweens = this.tweens.filter((tween) => tween != model.tween)
+                        this.updateMixersEvent();
+                    }
+                    if (model.tween?.stop) model.tween.stop();
+                }
 
                 this.troops[x][y].move = () => {
                     if (typeof this.groupsModels[troop.modelId] == 'undefined') return
                     const model = this.groupsModels[troop.modelId]
 
-                    console.log(model, 'model');
+                    // console.log(model, 'model');
 
-                    // this.tweens.push(
-                    //     new TWEEN.Tween(model.scene.hitbox.position)
-                    //     .to({ x: direction, z: y }, 6000).start()
-                    // );
-                    this.tweens.push(
-                        new TWEEN.Tween(model.scene.position)
-                        .to({ x: direction, z: y }, 6000).start()
+                    const tweenAnimation = new TWEEN.Tween(model.scene.position)
+                        .to({ x: direction, z: y }, 3000).start()
                         .onStart(() => {
                             model.actions.run[0].action.play();
                             model.currentAnimation.action.stop();
+                            this.groupsModels[troop.modelId].currentAnimation = model.actions.run[0]
+                            this.groupsModels[troop.modelId].tween = tweenAnimation
                         })
                         .onUpdate(() => {
                             
                             if (playerId == troop.owner) {
-                                console.log('update', model.scene.position);
+                                if (!model.loadedTroop) return console.log('not loaded troop');
+                                
+                                const detectCollision = (axis) => {
+                                    if (this.enemys[axis]) {
+                                        const enemyModel = this.groupsModels[this.enemys[axis].modelId]
+                                        if (!enemyModel) return;
+                                        if (!enemyModel.loadedTroop) return console.log('enemy not loaded troop');
+    
+                                        // if (enemyModel.scene.x )
+                                        let distance = enemyModel.scene.position.x - model.scene.position.x
+                                        if (typeof distance != 'number') return console.error('distance is NaN');
+                                        
+                                        if (distance < 0) {
+                                            distance *= (-1)
+                                        }
+                                        
+                                        if (distance < 2) {
+                                            tweenAnimation.stop();
+                                            this.tweens = this.tweens.filter((tween) => tween != model.tween && tween != enemyModel.tween)
+                                            this.updateMixersEvent();
+    
+                                            enemyModel.scene.lookAt(model.scene.position)
+                                            enemyModel.currentAnimation.action.stop();
+                                            enemyModel.actions.attack[0].action.play();
+    
+                                            model.scene.lookAt(enemyModel.scene.position)
+                                            model.currentAnimation.action.stop();
+                                            model.actions.attack[0].action.play();
+    
+                                            console.log(this.enemys[axis].modelId, troop.modelId)
+
+                                            let counter = 0
+                                            const damage = setInterval(() => {
+                                                if (!this.enemys[axis]?.counter) {
+                                                    if (damage) clearInterval(damage)
+                                                }
+                                                if (!counter) {
+                                                    tweenAnimation.stop()
+                                                    clearInterval(damage)
+                                                    if (!enemyModel?.modelId || !model?.modelId) return
+                                                    if (enemyModel.modelId != this.enemys[axis]?.modelId) return console.log(`model id is other`)
+                                                    if (model.modelId != troop.modelId) return console.log(`model id is other`);
+                                                    socketCallback('remove-troop', { pos: enemyModel?.initialPosition, modelId: enemyModel.modelId })
+                                                    socketCallback('remove-troop', { pos: model?.initialPosition, modelId: model.modelId })
+                                                    return
+                                                }
+                                                if (counter >= this.enemys[axis].counter) {
+                                                    tweenAnimation.stop()
+                                                    clearInterval(damage)
+                                                    if (!enemyModel?.modelId || !model?.modelId) return
+                                                    if (enemyModel.modelId != this.enemys[axis]?.modelId) return console.log(`model id is other`)
+                                                    if (model.modelId != troop.modelId) return console.log(`model id is other`);
+                                                    socketCallback('remove-troop', { pos: enemyModel?.initialPosition, modelId: enemyModel.modelId })
+                                                    socketCallback('remove-troop', { pos: model?.initialPosition, modelId: model.modelId })
+                                                }
+                                                counter++
+                                            }, 1000)
+                                        }
+                                    };
+                                }
+                                
+                                detectCollision(y);
+                                detectCollision(y-1);
+                                detectCollision(y+1);
+                                detectCollision(y-2);
+                                detectCollision(y+2);
+                                // console.log('update', x, y, model.scene.position);
                             }
                         })
                         .onComplete(() => {
-                            // this.staticCollideMesh[troop.owner] = model.filter((hitbox) => hitbox != model.scene.hitbox)
-                            // this.BoxHelper = this.BoxHelper.filter((helper) => helper != model.scene.hitbox.helper)
                             this.mixers = this.mixers.filter((mixer) => mixer != model.mixer)
                             
-                            // playerScene.scene.remove(model.scene.hitbox.boxCollider)
-                            // playerScene.scene.remove(model.scene.hitbox.helper);
-                            // playerScene.scene.remove(model.scene.hitbox);
-                            playerScene.scene.remove(model.scene);
+                            if (model.scene) playerScene.scene.remove(model.scene);
 
+                            console.log("END");
+                            
                             this.groupsModels[troop.modelId] = undefined
                             this.updateMixersEvent();
-                        })
-                    );
-                }
 
-                setTimeout(() => {
-                    if (typeof this.troops[x][y].move == 'undefined') return
-                    this.troops[x][y].move()
-                }, 500)
+                            if (playerId != troop.owner) socketCallback('damage-player', { playerId, damage: troop.damage })
+                        })
                 
-                // console.log(this.troops[x][y]);
+                    this.tweens.push(tweenAnimation)
+
+                    setTimeout(() => {
+                        this.groupsModels[troop.modelId].loadedTroop = true
+                    }, 200)
+                }
 
                 return model
             },
+            'moveTroop': (data) => {
+                
+                const { x, y } = data.pos;
+                if (typeof x != 'number' || typeof y != 'number') return console.error(`newTroop position is not a number`);
+                
+                if (this.enemys[y]) this.enemys[y]
+                if (typeof this.troops[x][y]?.move == 'undefined') return
+                this.troops[x][y].move()
+            },
             'removeTroop': (data) => {
-
+                
                 console.log(data);
                 const { x, y } = data.pos;
                 if (typeof x != 'number' || typeof y != 'number') return console.error(`newTroop position is not a number`);
                 if (!this.troops[x]?.[y]) return console.log('already removed in position', x, y);
-
+                
+                if (this.troops[x][y]?.remove) this.troops[x][y].remove()
+                if (this.enemys[y]) this.enemys[y] = undefined
+                
+                this.troops[x][y] = undefined;
             }
         }
+    }
+
+    removeTroopEvent() {
+
     }
 
     getMapData() {
@@ -234,10 +300,10 @@ export default class ClientMap {
         this.observers = this.observers.loadMap.filter((observer) => observer != fn);
     }    
 
-    updateMap(type, data, playersData, playerId) {
+    updateMap(type, data, playersData, playerId, socketCallback) {
         if (!data) return console.error(`updateMap data is undefined`);
         if (!this.updateMapMethods[type]) return console.error(`Update map type is invalid: ${type}`);
-        this.updateMapMethods[type](data, playersData, playerId);
+        this.updateMapMethods[type](data, playersData, playerId, socketCallback);
         this.updateMixersEvent();
     }
 }

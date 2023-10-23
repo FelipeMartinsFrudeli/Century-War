@@ -31,7 +31,7 @@ export default class PlayerScene {
         
         this.stats = new Stats();
         this.stats.showPanel(0);
-        document.body.appendChild(this.stats.dom);
+        // document.body.appendChild(this.stats.dom);
         
         this.clock = new THREE.Clock();
     }
@@ -57,14 +57,9 @@ export default class PlayerScene {
 
     mixers = []
     tweens = []
-    boxHelper = []
 
     updateMixers(newMixers) {
         this.mixers = newMixers;
-    }
-
-    updateBoxHelper(boxHelper) {
-        this.boxHelper = boxHelper;
     }
 
     updateTween(tweens) {
@@ -89,11 +84,7 @@ export default class PlayerScene {
                 if (tween.update) tween.update();
             }
 
-            for (const boxHelper of this.boxHelper) {
-                if (boxHelper.update) boxHelper.update();
-            }
-
-            this.stats.update();
+            // this.stats.update();
             this.renderer.render(this.scene, camera);
         })
     }

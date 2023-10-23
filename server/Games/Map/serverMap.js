@@ -4,6 +4,7 @@ import troops from "../../../src/data/troops";
 export default class ServerMap {
 
     constructor(mapSize) {
+        // this.placedChecker = [];
         this.mapInstance = {};
         this.mapInstance.tiles = new Tiles(mapSize); // tiles.data = []
     }
@@ -33,13 +34,25 @@ export default class ServerMap {
     
     placeTroop(playerId, data, callback) {
 
+        
+        if (!this.mapInstance) return console.error('\n mapInstance is undefined');
         if (!this.mapInstance.tileInfo) return console.error(`\n tile info is not defined`);
         if (!this.checkPosition(data.pos)) return;
-
+        
         const { x, y } = data.pos;
-
+        
         if (!this.mapInstance.tileInfo[x][y]) return console.error(`\n tile info position is invalid`);
         if (this.mapInstance.tileInfo[x][y].owner !== playerId) return console.error(`\n permission not enough in tile x ${x}, y ${y}`);
+        
+        if (this.mapInstance.tileInfo[x][y].troop) return;
+        
+        // if (!this.placedChecker[playerId]) this.placedChecker[playerId] = []
+        // if (this.placedChecker[playerId].indexOf(y) != -1 ) return
+        // this.placedChecker[playerId].push(y)
+        
+        // setInterval(() => {
+        //     this.placedChecker[playerId] = this.placedChecker[playerId].filter((placedY) => placedY != y)
+        // }, 4000)
 
         const name = data.troopName
         if (typeof name !== 'string') console.error(`\n troopName needs to be a string`);
@@ -54,16 +67,28 @@ export default class ServerMap {
     }
 
     removeTroop(playerId, data, callback) {
+
+        if (!this.mapInstance) return console.error('\n mapInstance is undefined');
         if (!this.mapInstance.tileInfo) return console.error(`\n tile info is not defined`);
         if (!this.checkPosition(data.pos)) return;
 
         const { x, y } = data.pos;
 
-        if (this.mapInstance.tileInfo[x][y].owner !== playerId) return console.error(`\n permission not enough in tile ${x, y}`);
-        
-        this.mapInstance.tileInfo[x][y].troop = undefined;
+        if (data.modelId && this.mapInstance.tileInfo[x]?.[y]?.troop?.modelId) {
+            if (this.mapInstance.tileInfo[x][y].troop.modelId == data.modelId) {
+                this.mapInstance.tileInfo[x][y].troop = undefined;
+                callback(data.pos)
+            }
+            return
+        }
 
-        callback(data.pos)
+        // if (this.mapInstance.tileInfo[x][y].owner !== playerId) return console.error(`\n permission not enough in tile ${x, y}`);
+        
+        if (this.mapInstance.tileInfo[x][y]) {
+            this.mapInstance.tileInfo[x][y].troop = undefined;
+            callback(data.pos)
+        }
+        
     }
 
     setOwners(players, teams) {
