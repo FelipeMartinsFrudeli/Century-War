@@ -9,7 +9,8 @@
     "webpack:server": "webpack --config webpack.server.js --watch",
     "webpack:client": "webpack --config webpack.config.js --watch",
     "server": "nodemon ./dist/bundle_server.js",
-    "start": "npm run build && npm-run-all --parallel webpack:* server"
+    "start": "npm run build && npm-run-all --parallel webpack:* server",
+    "start:production": "cd ./dist && node ./bundle_server.js"
   },
   "dependencies": {
     "@popperjs/core": "^2.11.8",
