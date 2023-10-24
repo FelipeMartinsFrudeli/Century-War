@@ -14,6 +14,7 @@ import ServerMap from './server/Games/Map/serverMap.js';
 import RoomInstance from './server/Rooms/roomInstance.js';
 import GameInstance from './server/Games/gameInstance.js';
 
+const PORT = process.env.PORT || 3031
 
 const app = express();
 const server = http.createServer(app);
@@ -237,4 +238,4 @@ io.sockets.on('connection', (socket) => {
 });
 
 
-server.listen(3030)
+server.listen(PORT, () => console.log(`listen port: ${PORT}`))
